@@ -1,74 +1,8 @@
-#include <chrono>
-#include <functional>
 #include <iostream>
-#include <list>
-#include <mutex>
-#include <optional>
 #include <string>
-#include <unordered_map>
-#include <variant>
 #include <vector>
 
-enum class Symbol {
-    AAPL,
-    MSFT,
-    GOOGL,
-    AMZN,
-    TSLA,
-    INVALID,
-};
-
-using PriceValue = std::variant<long long, double>;
-
-struct Quote {
-    Symbol symbol;
-    PriceValue ask;
-};
-
-class SmartQueue {
-public:
-    void push(Quote quote) {
-        std::scoped_lock lock(mutex_);
-        if (quote.symbol == Symbol::INVALID) {
-            return;
-        }
-
-        auto it = index_.find(quote.symbol);
-        if (it != index_.end()) {
-            queue_.erase(it->second);
-            index_.erase(it);
-        }
-
-        queue_.push_back(std::move(quote));
-        index_[queue_.back().symbol] = std::prev(queue_.end());
-    }
-
-    std::optional<Quote> tryPop() {
-        std::scoped_lock lock(mutex_);
-        if (queue_.empty()) {
-            return std::nullopt;
-        }
-
-        Quote quote = std::move(queue_.front());
-        index_.erase(quote.symbol);
-        queue_.pop_front();
-        return quote;
-    }
-
-    std::size_t size() const {
-        std::scoped_lock lock(mutex_);
-        return queue_.size();
-    }
-
-    bool empty() const {
-        return size() == 0;
-    }
-
-private:
-    mutable std::mutex mutex_;
-    std::list<Quote> queue_;
-    std::unordered_map<Symbol, std::list<Quote>::iterator> index_;
-};
+#include "SmartQueue.h"
 
 static std::string toString(Symbol symbol) {
     switch (symbol) {
