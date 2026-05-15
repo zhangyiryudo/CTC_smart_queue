@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(ctc_smart_queue src/main.cpp src/SmartQueue.cpp)
+add_executable(ctc_smart_queue src/main.cpp src/SmartQueue.cpp src/SmartQueueLockFree.cpp)
 
 target_compile_options(ctc_smart_queue PRIVATE
   $<$<CXX_COMPILER_ID:GNU>:-Wall -Wextra -Wpedantic>
